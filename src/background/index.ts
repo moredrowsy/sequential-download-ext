@@ -86,11 +86,12 @@ async function downloadThese(downloads: Download[]) {
       const download = DOWNLOAD_MAP.get(url);
 
       if (download) {
-        // If download has ID, then it might be able to resume.
-        if (download.id && download.state == 'paused')
-          download.state = 'resume';
-        // Else, mark as active to start download
-        else if (
+        if (download.state == 'paused') {
+          // If 'paused' and has id, mark as 'resume' state
+          if (download.id) download.state = 'resume';
+          // Else can't resume without id so mark as active to restart
+          else download.state = 'active';
+        } else if (
           download.state == 'inactive' ||
           download.state == 'interrupted'
         )
@@ -131,7 +132,7 @@ async function pauseThese(downloads: Download[]) {
             (e) => {}
           );
         } else if (download.state == 'active') {
-          download.state = 'paused';
+          download.state = 'inactive';
         }
       }
     }
