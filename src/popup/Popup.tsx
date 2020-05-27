@@ -151,6 +151,54 @@ export default function Popup() {
     setDownloads({ ...downloads });
   };
 
+  // Pause one download
+  const pauseOne = (url: string) => {
+    // Send port message
+    const msg: PortMessage = {
+      from: 'popup',
+      msg: 'Pause these items',
+      data: [downloads[url]],
+    };
+    port.postMessage(msg);
+  };
+
+  // Start one download
+  const startOne = (url: string) => {
+    // Send port message
+    const msg: PortMessage = {
+      from: 'popup',
+      msg: 'Download these items',
+      data: [downloads[url]],
+    };
+    port.postMessage(msg);
+  };
+
+  // Remove one download (must be called after stopOne)
+  const clearOne = (url: string) => {
+    // Send port message
+    const msg: PortMessage = {
+      from: 'popup',
+      msg: 'Clear these items',
+      data: [downloads[url]],
+    };
+    port.postMessage(msg);
+
+    delete downloads[url];
+    canDisableIsCheckedAll(Object.keys(downloads).length);
+    setDownloads({ ...downloads });
+  };
+
+  // Stop one download
+  const stopOne = (url: string) => {
+    // Send port message
+    const msg: PortMessage = {
+      from: 'popup',
+      msg: 'Stop these items',
+      data: [downloads[url]],
+    };
+    port.postMessage(msg);
+  };
+
   // Parses url into sequences
   const parse = () => {
     const urlInput: HTMLInputElement = document.getElementById(
@@ -261,6 +309,10 @@ export default function Popup() {
                   key={key}
                   {...downloads[key]}
                   toggleCheck={toggleCheck}
+                  pauseOne={pauseOne}
+                  startOne={startOne}
+                  clearOne={clearOne}
+                  stopOne={stopOne}
                 />
               ))}
             </Box>

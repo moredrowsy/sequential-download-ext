@@ -1,9 +1,9 @@
 import React from 'react';
 import { Checkbox, IconButton, Grid, Tooltip } from '@material-ui/core';
 import {
-  HighlightOff,
+  Cancel,
   PauseCircleFilled,
-  PlayArrow,
+  PlayCircleFilled,
   RemoveCircleRounded,
   Stop,
 } from '@material-ui/icons';
@@ -28,7 +28,7 @@ export default function DownloadHeader(props: DownloadHeaderProps) {
         <Grid item>
           <Tooltip title='Start Selected' placement='bottom'>
             <IconButton size='small' onClick={props.downloadThese}>
-              <PlayArrow className={classes.defaultIcon} />
+              <PlayCircleFilled className={classes.defaultIcon} />
             </IconButton>
           </Tooltip>
         </Grid>
@@ -59,7 +59,7 @@ export default function DownloadHeader(props: DownloadHeaderProps) {
             placement='bottom'
           >
             <IconButton size='small' onClick={props.clearThese}>
-              <HighlightOff className={classes.defaultIcon} />
+              <Cancel className={classes.defaultIcon} />
             </IconButton>
           </Tooltip>
         </Grid>

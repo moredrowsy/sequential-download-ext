@@ -4,7 +4,7 @@ import {
   AdjustRounded,
   CheckCircleRounded,
   ErrorRounded,
-  PauseCircleOutlineRounded,
+  RotateRight,
 } from '@material-ui/icons';
 
 import { useStyles } from '../styles/styles';
@@ -22,7 +22,7 @@ export default function DownlaodState(props: DownloadStateProps) {
     case 'interrupted':
       return <ErrorRounded color='error' />;
     case 'paused':
-      return <PauseCircleOutlineRounded className={classes.defaultIcon} />;
+      return <RotateRight className={classes.defaultIcon} />;
     default:
       return <AdjustRounded className={classes.defaultIcon} />;
   }

@@ -3,11 +3,11 @@ import { Mutex } from 'async-mutex';
 import DownloadMap from '../utils/DownloadMap';
 
 // GLOBAL DATA
-const DOWNLOAD_MAP_MUTEX = new Mutex();
-let DOWNLOAD_MAP = new DownloadMap();
-let PORT: browser.runtime.Port;
-let PORT_CONNECTED = false;
-let STOP = false;
+const DOWNLOAD_MAP_MUTEX = new Mutex(); // Mutex lock to protect DOWNLOAD_MAP
+let DOWNLOAD_MAP = new DownloadMap(); // Map of all download items
+let PORT: browser.runtime.Port; // Port connection to popup.js
+let PORT_CONNECTED = false; // Signal if popup.js is connected
+let STOP = false; // Signal download loop to stop
 
 // listen for port messages
 browser.runtime.onConnect.addListener((port) => {
@@ -63,18 +63,6 @@ browser.runtime.onConnect.addListener((port) => {
   });
 });
 
-// One-time receive
-// From popup.js -> background.js
-browser.runtime.onMessage.addListener((msg, sender) => {
-  if (msg.from === 'popup' && msg.to === 'background') {
-    console.log(
-      `Received one-time request from ${msg.from}/${sender.id}.`,
-      msg
-    );
-    return Promise.resolve({ msg: 'Background got your request!' });
-  }
-});
-
 // Return DOWNLOAD_MAP list
 function getDownloadMap() {
   return DOWNLOAD_MAP.getMap();
@@ -97,12 +85,17 @@ async function downloadThese(downloads: Download[]) {
     for (const { url } of downloads) {
       const download = DOWNLOAD_MAP.get(url);
 
-      if (download && download.state != 'complete') {
+      if (download) {
         // If download has ID, then it might be able to resume.
         if (download.id && download.state == 'paused')
           download.state = 'resume';
         // Else, mark as active to start download
-        else download.state = 'active';
+        else if (
+          download.state == 'inactive' ||
+          download.state == 'interrupted'
+        )
+          download.state = 'active';
+        else if (download.state == 'complete') sendDownloadUpdates(url);
       }
     }
   } finally {
@@ -219,17 +212,31 @@ async function stopThese(downloads: Download[]) {
 }
 
 // Remove these items that are not 'in_progress' or 'paused'
-function clearThese(downloads: Download[]) {
-  for (const { url } of downloads) {
-    const download = DOWNLOAD_MAP.get(url);
+async function clearThese(downloads: Download[]) {
+  // Send signal to STOP other download instances
+  STOP = true;
 
-    if (
-      download &&
-      download.state != 'in_progress' &&
-      download.state != 'paused'
-    )
-      DOWNLOAD_MAP.removeOne(url);
+  // Wait for download to stop
+  // Then reset all active downloads to inactive
+  const releaseDownloadMap = await DOWNLOAD_MAP_MUTEX.acquire();
+  try {
+    for (const { url } of downloads) {
+      const download = DOWNLOAD_MAP.get(url);
+
+      if (
+        download &&
+        download.state != 'in_progress' &&
+        download.state != 'paused'
+      )
+        DOWNLOAD_MAP.removeOne(url);
+    }
+  } finally {
+    releaseDownloadMap();
   }
+
+  // Signal to allow and resume non-stopped downloads
+  STOP = false;
+  startDownloads();
 }
 
 // Download an array of urls
@@ -385,12 +392,12 @@ function onDownloadCompleteOrInterrupted(itemId: number, url: string) {
 function sendDownloadUpdates(url: string) {
   try {
     if (PORT_CONNECTED) {
-      const resp: PortMessage = {
+      const msg: PortMessage = {
         from: 'background',
         msg: 'Download update',
         data: DOWNLOAD_MAP.get(url),
       };
-      PORT.postMessage(resp);
+      PORT.postMessage(msg);
     }
   } catch (e) {
     console.error(e);

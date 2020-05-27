@@ -4,6 +4,8 @@ import { Checkbox, Grid, Typography } from '@material-ui/core';
 import { useStyles } from '../styles/styles';
 import DownloadUrl from './DownloadUrl';
 import DownloadState from './DownloadState';
+import DownloadPlayPause from './DownloadPlayPause';
+import DownloadStopClear from './DownloadStopClear';
 
 function Item(props: DownloadProps) {
   const classes = useStyles();
@@ -29,6 +31,22 @@ function Item(props: DownloadProps) {
         <Grid item>
           <DownloadState state={props.state} />
         </Grid>
+        <Grid item>
+          <DownloadPlayPause
+            url={props.url}
+            state={props.state}
+            pauseOne={props.pauseOne}
+            startOne={props.startOne}
+          />
+        </Grid>
+        <Grid item>
+          <DownloadStopClear
+            url={props.url}
+            state={props.state}
+            clearOne={props.clearOne}
+            stopOne={props.stopOne}
+          />
+        </Grid>
       </Grid>
     </Grid>
   );
@@ -47,4 +65,8 @@ export default React.memo(Item, areEqual);
 
 interface DownloadProps extends Download {
   toggleCheck: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  pauseOne: (url: string) => void;
+  startOne: (url: string) => void;
+  clearOne: (url: string) => void;
+  stopOne: (url: string) => void;
 }

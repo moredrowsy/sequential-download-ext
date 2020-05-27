@@ -21,9 +21,7 @@ declare type DownloadId = number | undefined;
  * State flow
  * inactive -> active -> in_progress -> complete
  *                                   -> interrupted (error) -> active
- *                                   -> cancelled -> resume | active
  *                                   -> paused -> resume | active
- *                                             -> cancelled -> resume | active
  *
  * Cancelled/paused sometime can not resume, so set to active to restart.
  */
@@ -35,5 +33,4 @@ declare type DownloadState =
   | 'complete' // has completed after in_progress
   | 'interrupted' // did not complete because of error after in_progress
   | 'paused' // download paused after in_progress
-  | 'resume' // marked as need to download after paused
-  | 'cancelled'; // cancelled by user after in_progress or paused
+  | 'resume'; // marked as need to download after paused
