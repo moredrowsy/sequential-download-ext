@@ -13,8 +13,9 @@ export default class DownloadsMap {
     this.map[download.url] = download;
   }
 
-  removeOne(download: Download) {
-    if (download.url in this.map) delete this.map[download.url];
+  removeOne(item: string | Download) {
+    const url = typeof item == 'string' ? item : item.url;
+    if (url in this.map) delete this.map[url];
   }
 
   clear() {

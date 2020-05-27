@@ -1,6 +1,12 @@
 import React from 'react';
 import { Checkbox, IconButton, Grid, Tooltip } from '@material-ui/core';
-import { PauseCircleFilled, PlayArrow, Stop } from '@material-ui/icons';
+import {
+  HighlightOff,
+  PauseCircleFilled,
+  PlayArrow,
+  RemoveCircleRounded,
+  Stop,
+} from '@material-ui/icons';
 
 import { useStyles } from '../styles/styles';
 
@@ -16,6 +22,7 @@ export default function DownloadHeader(props: DownloadHeaderProps) {
             checked={props.isChecked}
             onChange={props.toggleCheckAll}
             className={classes.checkbox}
+            disabled={props.isDisabled}
           />
         </Grid>
         <Grid item>
@@ -26,16 +33,33 @@ export default function DownloadHeader(props: DownloadHeaderProps) {
           </Tooltip>
         </Grid>
         <Grid item>
-          <Tooltip title='Start Selected' placement='bottom'>
+          <Tooltip title='Pause Selected' placement='bottom'>
             <IconButton size='small' onClick={props.pauseThese}>
               <PauseCircleFilled className={classes.defaultIcon} />
             </IconButton>
           </Tooltip>
         </Grid>
         <Grid item>
-          <Tooltip title='Stop All' placement='bottom'>
+          <Tooltip title='Stop Selected' placement='bottom'>
             <IconButton size='small' onClick={props.stopThese}>
               <Stop className={classes.defaultIcon} />
+            </IconButton>
+          </Tooltip>
+        </Grid>
+        <Grid item>
+          <Tooltip title='Clear Completed' placement='bottom'>
+            <IconButton size='small' onClick={props.clearCompleted}>
+              <RemoveCircleRounded className={classes.defaultIcon} />
+            </IconButton>
+          </Tooltip>
+        </Grid>
+        <Grid item>
+          <Tooltip
+            title='Clear Selected (including scheduled downloads)'
+            placement='bottom'
+          >
+            <IconButton size='small' onClick={props.clearThese}>
+              <HighlightOff className={classes.defaultIcon} />
             </IconButton>
           </Tooltip>
         </Grid>
@@ -46,8 +70,11 @@ export default function DownloadHeader(props: DownloadHeaderProps) {
 
 interface DownloadHeaderProps {
   isChecked: boolean;
+  isDisabled: boolean;
   toggleCheckAll: (e: React.ChangeEvent<HTMLInputElement>) => void;
   downloadThese: () => void;
   pauseThese: () => void;
   stopThese: () => void;
+  clearCompleted: () => void;
+  clearThese: () => void;
 }

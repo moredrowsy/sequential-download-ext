@@ -49,6 +49,11 @@ browser.runtime.onConnect.addListener((port) => {
         const items: Download[] = msg.data;
         stopThese(items);
       }
+    } else if (msg.msg == 'Clear these items') {
+      if (msg.data) {
+        const items: Download[] = msg.data;
+        clearThese(items);
+      }
     }
   });
 
@@ -123,14 +128,18 @@ async function pauseThese(downloads: Download[]) {
       const download = DOWNLOAD_MAP.get(url);
 
       // Try to pause 'in_progress' download
-      if (download && download.id && download.state == 'in_progress') {
-        browser.downloads.pause(download.id).then(
-          () => {
-            download.state = 'paused';
-            sendDownloadUpdates(url);
-          },
-          (e) => {}
-        );
+      if (download) {
+        if (download.id && download.state == 'in_progress') {
+          browser.downloads.pause(download.id).then(
+            () => {
+              download.state = 'paused';
+              sendDownloadUpdates(url);
+            },
+            (e) => {}
+          );
+        } else if (download.state == 'active') {
+          download.state = 'paused';
+        }
       }
     }
   } finally {
@@ -207,6 +216,20 @@ async function stopThese(downloads: Download[]) {
   // Signal to allow and resume non-stopped downloads
   STOP = false;
   startDownloads();
+}
+
+// Remove these items that are not 'in_progress' or 'paused'
+function clearThese(downloads: Download[]) {
+  for (const { url } of downloads) {
+    const download = DOWNLOAD_MAP.get(url);
+
+    if (
+      download &&
+      download.state != 'in_progress' &&
+      download.state != 'paused'
+    )
+      DOWNLOAD_MAP.removeOne(url);
+  }
 }
 
 // Download an array of urls

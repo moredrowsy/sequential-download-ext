@@ -47,6 +47,11 @@ export default function Popup() {
     setDownloads({ ...downloads });
   };
 
+  // Disable isCheckedAll if list is empty
+  const canDisableIsCheckedAll = (length: number) => {
+    if (length == 0) setIsCheckedAll(false);
+  };
+
   // Send port message to background.js to download an array of checked items
   const downloadThese = () => {
     // Filter a checked array of items
@@ -93,6 +98,57 @@ export default function Popup() {
       data: items,
     };
     port.postMessage(msg);
+  };
+
+  // Send port message to background.js to remove an array of checked items
+  const clearThese = () => {
+    // Filter and remove items that are not 'in_progress' or 'paused'
+    const items: Download[] = [];
+    Object.keys(downloads).map((url) => {
+      const download = downloads[url];
+      if (
+        download.isChecked &&
+        download.state != 'in_progress' &&
+        download.state != 'paused'
+      ) {
+        items.push(download);
+        delete downloads[url];
+      }
+    });
+
+    // Send port message
+    const msg: PortMessage = {
+      from: 'popup',
+      msg: 'Clear these items',
+      data: items,
+    };
+    port.postMessage(msg);
+
+    canDisableIsCheckedAll(Object.keys(downloads).length);
+    setDownloads({ ...downloads });
+  };
+
+  // Send port message to background.js to clear an array of completed items
+  const clearCompleted = () => {
+    // Filter and remove items that are 'complete'
+    const items: Download[] = [];
+    Object.keys(downloads).map((url) => {
+      if (downloads[url].state == 'complete') {
+        items.push(downloads[url]);
+        delete downloads[url];
+      }
+    });
+
+    // Send port message
+    const msg: PortMessage = {
+      from: 'popup',
+      msg: 'Clear these items',
+      data: items,
+    };
+    port.postMessage(msg);
+
+    canDisableIsCheckedAll(Object.keys(downloads).length);
+    setDownloads({ ...downloads });
   };
 
   // Parses url into sequences
@@ -191,10 +247,13 @@ export default function Popup() {
           <TabPanel value={tabValue} index={0}>
             <DownloadHeader
               isChecked={isCheckedAll}
+              isDisabled={Object.keys(downloads).length > 0 ? false : true}
               toggleCheckAll={toggleCheckAll}
               downloadThese={downloadThese}
               pauseThese={pauseThese}
               stopThese={stopThese}
+              clearThese={clearThese}
+              clearCompleted={clearCompleted}
             />
             <Box p={0} className={classes.boxPanel}>
               {Object.keys(downloads).map((key) => (
