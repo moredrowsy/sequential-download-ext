@@ -1,8 +1,8 @@
 {
-  "name": "react-browser-ext-ts",
+  "name": "sequential-download-ext",
   "version": "1.0.0",
-  "description": "Template for browser extension using react with typescript",
-  "repository": "https://github.com/moredrowsy/react-browser-ext-ts",
+  "description": "Sequential Downloader Extension for Chrome/Firefox",
+  "repository": "https://github.com/moredrowsy/sequential-download-ext",
   "main": "dist/background/background.js",
   "scripts": {
     "build": "webpack --mode production",
@@ -10,13 +10,12 @@
     "test": "jest"
   },
   "keywords": [
-    "boilerplate",
+    "download",
+    "sequential",
+    "extension",
     "browser",
     "chrome",
-    "extension",
-    "firfox",
-    "react",
-    "typescript"
+    "firefox"
   ],
   "author": "Thuan Tang",
   "license": "ISC",
@@ -43,7 +42,6 @@
     "@svgr/webpack": "^5.4.0",
     "@types/firefox-webext-browser": "^70.0.1",
     "@types/jest": "^25.2.3",
-    "@types/material-ui": "^0.21.7",
     "@types/node": "^14.0.1",
     "@types/react": "^16.9.35",
     "@types/react-dom": "^16.9.8",
