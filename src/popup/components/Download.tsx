@@ -9,7 +9,7 @@ import DownloadStopClear from './DownloadStopClear';
 
 function Item(props: DownloadProps) {
   const classes = useStyles();
-  const maxStringLength = 80;
+  const maxLen = 80;
 
   return (
     <Grid container className={classes.downloadRoot}>
@@ -25,7 +25,7 @@ function Item(props: DownloadProps) {
         </Grid>
         <Grid item xs={true}>
           <Typography className={classes.itemName}>
-            <DownloadUrl url={props.url} maxStringLength={maxStringLength} />
+            <DownloadUrl url={props.url} maxLen={maxLen} />
           </Typography>
         </Grid>
         <Grid item>
