@@ -1,0 +1,43 @@
+.Popup {
+  text-align: center;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+
+  /* SCROLLBAR for firefox */
+  scroll-margin: 0px;
+  scrollbar-color: #3f51b5 #9fa8da;
+  scrollbar-width: 20px;
+}
+
+/* SCROLLBAR for chrome */
+/* width */
+::-webkit-scrollbar {
+  width: 20px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #9fa8da;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #3f51b5;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #5c6bc0;
+}
+
+::-webkit-scrollbar-corner {
+  /*
+    background-image: url(resources/corner.png);
+    background-repeat: no-repeat;
+    */
+  background-color: #3f51b5;
+}
