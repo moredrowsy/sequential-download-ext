@@ -189,7 +189,11 @@ async function stopThese(downloads: Download[]) {
     for (const { url } of downloads) {
       const download = DOWNLOAD_MAP.get(url);
 
-      if (download && download.state != 'inactive') {
+      if (
+        download &&
+        download.state != 'inactive' &&
+        download.state != 'complete'
+      ) {
         download.state = 'inactive';
 
         // If download has ID, then it is in_progress. Try to cancel
@@ -334,20 +338,6 @@ async function startDownloads() {
     // Release DownloadMap when downloads finished or exit early
     releaseDownloadMap();
   }
-}
-
-function resumeDownload(download: Download) {
-  return new Promise<number | undefined>((resolve, reject) => {
-    if (download.id)
-      browser.downloads.resume(download.id).then(
-        () => {
-          download.state = 'in_progress';
-          sendDownloadUpdates(download.url);
-          resolve(download.id);
-        },
-        () => reject(undefined)
-      );
-  });
 }
 
 // Download a single url
