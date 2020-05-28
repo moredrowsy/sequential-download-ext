@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   AppBar,
   Box,
@@ -32,11 +32,15 @@ export default function Popup() {
   };
 
   // Toggle one item to check/uncheck
-  const toggleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsCheckedAll(false);
-    downloads[e.target.value].isChecked = !downloads[e.target.value].isChecked;
-    setDownloads({ ...downloads });
-  };
+  const toggleCheck = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setIsCheckedAll(false);
+      downloads[e.target.value].isChecked = !downloads[e.target.value]
+        .isChecked;
+      setDownloads({ ...downloads });
+    },
+    [Object.keys(downloads).length]
+  );
 
   // Toggle all items to check/unchecked state
   const toggleCheckAll = () => {
@@ -151,53 +155,38 @@ export default function Popup() {
     setDownloads({ ...downloads });
   };
 
-  // Pause one download
-  const pauseOne = (url: string) => {
-    // Send port message
-    const msg: PortMessage = {
-      from: 'popup',
-      msg: 'Pause these items',
-      data: [downloads[url]],
-    };
-    port.postMessage(msg);
-  };
-
-  // Start one download
-  const startOne = (url: string) => {
-    // Send port message
-    const msg: PortMessage = {
-      from: 'popup',
-      msg: 'Download these items',
-      data: [downloads[url]],
-    };
-    port.postMessage(msg);
-  };
-
   // Remove one download (must be called after stopOne)
-  const clearOne = (url: string) => {
-    // Send port message
-    const msg: PortMessage = {
-      from: 'popup',
-      msg: 'Clear these items',
-      data: [downloads[url]],
-    };
-    port.postMessage(msg);
+  const clearOne = useCallback(
+    (url: string) => {
+      // Send port message
+      const msg: PortMessage = {
+        from: 'popup',
+        msg: 'Clear these items',
+        data: [downloads[url]],
+      };
+      port.postMessage(msg);
 
-    delete downloads[url];
-    canDisableIsCheckedAll(Object.keys(downloads).length);
-    setDownloads({ ...downloads });
-  };
+      delete downloads[url];
+      canDisableIsCheckedAll(Object.keys(downloads).length);
+      setDownloads({ ...downloads });
+    },
+    [Object.keys(downloads).length]
+  );
 
   // Stop one download
-  const stopOne = (url: string) => {
-    // Send port message
-    const msg: PortMessage = {
-      from: 'popup',
-      msg: 'Stop these items',
-      data: [downloads[url]],
-    };
-    port.postMessage(msg);
-  };
+  const stopOne = useCallback(
+    (url: string) => {
+      // Send port message
+      const msg: PortMessage = {
+        from: 'popup',
+        msg: 'Stop these items',
+        data: [downloads[url]],
+      };
+      port.postMessage(msg);
+      console.log(downloads[url]);
+    },
+    [Object.keys(downloads).length]
+  );
 
   // Parses url into sequences
   const parse = () => {
@@ -308,11 +297,11 @@ export default function Popup() {
                 <Download
                   key={key}
                   {...downloads[key]}
+                  downloads={downloads}
                   toggleCheck={toggleCheck}
-                  pauseOne={pauseOne}
-                  startOne={startOne}
                   clearOne={clearOne}
                   stopOne={stopOne}
+                  port={port}
                 />
               ))}
             </Box>

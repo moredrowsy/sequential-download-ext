@@ -1,32 +1,28 @@
 import React from 'react';
-import { Checkbox, Grid, Typography } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 
 import { useStyles } from '../styles/styles';
+import DownloadCheckbox from './DownloadCheckbox';
 import DownloadUrl from './DownloadUrl';
 import DownloadState from './DownloadState';
 import DownloadPlayPause from './DownloadPlayPause';
 import DownloadStopClear from './DownloadStopClear';
 
-function Item(props: DownloadProps) {
+export default React.memo((props: DownloadProps) => {
   const classes = useStyles();
-  const maxLen = 80;
 
   return (
     <Grid container className={classes.downloadRoot}>
       <Grid container className={classes.downloadRow} alignItems='center'>
         <Grid item>
-          <Checkbox
-            id={props.url}
-            checked={props.isChecked}
-            value={props.url}
-            onChange={props.toggleCheck}
-            className={classes.checkbox}
+          <DownloadCheckbox
+            isChecked={props.isChecked}
+            url={props.url}
+            toggleCheck={props.toggleCheck}
           />
         </Grid>
         <Grid item xs={true}>
-          <Typography className={classes.itemName}>
-            <DownloadUrl url={props.url} maxLen={maxLen} />
-          </Typography>
+          <DownloadUrl url={props.url} />
         </Grid>
         <Grid item>
           <DownloadState state={props.state} />
@@ -34,9 +30,9 @@ function Item(props: DownloadProps) {
         <Grid item>
           <DownloadPlayPause
             url={props.url}
+            id={props.id}
             state={props.state}
-            pauseOne={props.pauseOne}
-            startOne={props.startOne}
+            port={props.port}
           />
         </Grid>
         <Grid item>
@@ -45,28 +41,33 @@ function Item(props: DownloadProps) {
             state={props.state}
             clearOne={props.clearOne}
             stopOne={props.stopOne}
-          />
+          />{' '}
         </Grid>
       </Grid>
     </Grid>
   );
-}
+}, areEqual);
 
 function areEqual(prevProps: DownloadProps, nextProps: DownloadProps) {
+  // Prop's callbacks depend on parent's state setter for downloads object.
+  // Thus, must compare parent's downloads object.
+  // If number of keys in downloads object changed, then return false
+  // to rerender and grab props' new callbacks so that the callacks
+  // will use the new downloads object and state setter.
   if (
+    Object.keys(prevProps.downloads).length ==
+      Object.keys(nextProps.downloads).length &&
     prevProps.isChecked === nextProps.isChecked &&
     prevProps.state === nextProps.state
-  )
+  ) {
     return true;
-  else return false;
+  } else return false;
 }
 
-export default React.memo(Item, areEqual);
-
 interface DownloadProps extends Download {
+  downloads: Downloads;
   toggleCheck: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  pauseOne: (url: string) => void;
-  startOne: (url: string) => void;
   clearOne: (url: string) => void;
   stopOne: (url: string) => void;
+  port: browser.runtime.Port;
 }

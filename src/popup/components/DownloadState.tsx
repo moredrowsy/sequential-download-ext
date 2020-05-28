@@ -9,7 +9,7 @@ import {
 
 import { useStyles } from '../styles/styles';
 
-export default function DownlaodState(props: DownloadStateProps) {
+export default React.memo((props: DownloadStateProps) => {
   const classes = useStyles();
 
   switch (props.state) {
@@ -26,7 +26,7 @@ export default function DownlaodState(props: DownloadStateProps) {
     default:
       return <AdjustRounded className={classes.defaultIcon} />;
   }
-}
+});
 
 interface DownloadStateProps {
   state: DownloadState;

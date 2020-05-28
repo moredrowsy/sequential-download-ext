@@ -1,13 +1,20 @@
 import React from 'react';
+import { Typography } from '@material-ui/core';
+
+import { useStyles } from '../styles/styles';
 import { ellipseStr } from '../../utils/strings';
 
-export default function DownloadUrl(props: Props) {
-  return (
-    <React.Fragment>{ellipseStr(props.url, props.maxLen, 'in')}</React.Fragment>
-  );
-}
+export default React.memo((props: DownloadUrlProps) => {
+  const classes = useStyles();
+  const maxLen = 80;
 
-interface Props {
+  return (
+    <Typography className={classes.itemName}>
+      {ellipseStr(props.url, maxLen, 'in')}
+    </Typography>
+  );
+});
+
+interface DownloadUrlProps {
   url: string;
-  maxLen: number;
 }

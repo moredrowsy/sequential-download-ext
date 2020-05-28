@@ -4,7 +4,7 @@ import { Cancel, Stop } from '@material-ui/icons';
 
 import { useStyles } from '../styles/styles';
 
-export default function DownloadInteraction(props: DownloadInteractionProps) {
+export default React.memo((props: DownloadStopClearProps) => {
   const classes = useStyles();
 
   switch (props.state) {
@@ -22,9 +22,9 @@ export default function DownloadInteraction(props: DownloadInteractionProps) {
         </IconButton>
       );
   }
-}
+});
 
-interface DownloadInteractionProps {
+interface DownloadStopClearProps {
   url: string;
   state: DownloadState;
   clearOne: (url: string) => void;

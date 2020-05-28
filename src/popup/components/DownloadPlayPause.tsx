@@ -4,38 +4,63 @@ import { PauseCircleFilled, PlayCircleFilled } from '@material-ui/icons';
 
 import { useStyles } from '../styles/styles';
 
-export default function DownloadInteraction(props: DownloadInteractionProps) {
+export default React.memo((props: DownloadPlayPauseProps) => {
   const classes = useStyles();
+
+  // Pause download
+  const pauseOne = () => {
+    const msg: PortMessage = {
+      from: 'popup',
+      msg: 'Pause these items',
+      data: [{ url: props.url, id: props.id, state: props.state }],
+    };
+    props.port.postMessage(msg);
+  };
+
+  // Start download
+  const startOne = () => {
+    const msg: PortMessage = {
+      from: 'popup',
+      msg: 'Download these items',
+      data: [{ url: props.url, id: props.id, state: props.state }],
+    };
+    props.port.postMessage(msg);
+  };
 
   switch (props.state) {
     case 'complete':
       return (
-        <IconButton
-          disabled
-          size='small'
-          onClick={() => props.startOne(props.url)}
-        >
+        <IconButton disabled size='small'>
           <PlayCircleFilled className={classes.defaultIcon} />
         </IconButton>
       );
     case 'in_progress':
       return (
-        <IconButton size='small' onClick={() => props.pauseOne(props.url)}>
+        <IconButton size='small' onClick={pauseOne}>
           <PauseCircleFilled className={classes.defaultIcon} />
         </IconButton>
       );
     default:
       return (
-        <IconButton size='small' onClick={() => props.startOne(props.url)}>
+        <IconButton size='small' onClick={startOne}>
           <PlayCircleFilled className={classes.defaultIcon} />
         </IconButton>
       );
   }
+}, areEqual);
+
+function areEqual(
+  prevProps: DownloadPlayPauseProps,
+  nextProps: DownloadPlayPauseProps
+) {
+  if (prevProps.id === nextProps.id && prevProps.state === nextProps.state) {
+    return true;
+  } else return false;
 }
 
-interface DownloadInteractionProps {
+interface DownloadPlayPauseProps {
   url: string;
+  id: DownloadId;
   state: DownloadState;
-  pauseOne: (url: string) => void;
-  startOne: (url: string) => void;
+  port: browser.runtime.Port;
 }
