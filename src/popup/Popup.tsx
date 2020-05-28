@@ -247,14 +247,18 @@ export default function Popup() {
 
   // Listening for port messages from background.js
   useEffect(() => {
-    // Listen for port messages
     port.onMessage.addListener((msg: any) => {
       if (msg.msg == 'Here is your downloads') setDownloads(msg.data);
       else if (msg.msg == 'Download update') {
         if (msg.data && msg.data.url && msg.data.url in downloads) {
-          downloads[msg.data.url].id = msg.data.id;
-          downloads[msg.data.url].state = msg.data.state;
-          setDownloads({ ...downloads });
+          if (
+            downloads[msg.data.url].id != msg.data.id ||
+            downloads[msg.data.url].state != msg.data.state
+          ) {
+            downloads[msg.data.url].id = msg.data.id;
+            downloads[msg.data.url].state = msg.data.state;
+            setDownloads({ ...downloads });
+          }
         }
       }
     });
