@@ -24,6 +24,7 @@ export default function Popup() {
   const port = browser.runtime.connect(undefined, { name: 'popup' });
   const [tabValue, setTabValue] = useState(0);
   const [downloads, setDownloads] = useState<Downloads>({});
+  const [downloadsSize, setDownloadsSize] = useState(0);
   const [isCheckedAll, setIsCheckedAll] = useState(false);
 
   // Switch tab panel
@@ -128,7 +129,9 @@ export default function Popup() {
     };
     port.postMessage(msg);
 
-    canDisableIsCheckedAll(Object.keys(downloads).length);
+    const newDlSize = Object.keys(downloads).length;
+    canDisableIsCheckedAll(newDlSize);
+    setDownloadsSize(newDlSize);
     setDownloads({ ...downloads });
   };
 
@@ -151,7 +154,9 @@ export default function Popup() {
     };
     port.postMessage(msg);
 
-    canDisableIsCheckedAll(Object.keys(downloads).length);
+    const newDlSize = Object.keys(downloads).length;
+    canDisableIsCheckedAll(newDlSize);
+    setDownloadsSize(newDlSize);
     setDownloads({ ...downloads });
   };
 
@@ -167,7 +172,9 @@ export default function Popup() {
       port.postMessage(msg);
 
       delete downloads[url];
-      canDisableIsCheckedAll(Object.keys(downloads).length);
+      const newDlSize = Object.keys(downloads).length;
+      canDisableIsCheckedAll(newDlSize);
+      setDownloadsSize(newDlSize);
       setDownloads({ ...downloads });
     },
     [Object.keys(downloads).length]
@@ -207,8 +214,10 @@ export default function Popup() {
           };
       }
 
-      setDownloads({ ...downloads, ...dl });
+      const newDl = { ...downloads, ...dl };
+      setDownloads(newDl);
       saveDownloadsToBackground({ ...dl });
+      setDownloadsSize(Object.keys(newDl).length);
     }
   };
 
@@ -248,17 +257,21 @@ export default function Popup() {
   // Listening for port messages from background.js
   useEffect(() => {
     port.onMessage.addListener((msg: any) => {
-      if (msg.msg == 'Here is your downloads') setDownloads(msg.data);
-      else if (msg.msg == 'Download update') {
-        if (msg.data && msg.data.url && msg.data.url in downloads) {
-          if (
-            downloads[msg.data.url].id != msg.data.id ||
-            downloads[msg.data.url].state != msg.data.state
-          ) {
-            downloads[msg.data.url].id = msg.data.id;
-            downloads[msg.data.url].state = msg.data.state;
-            setDownloads({ ...downloads });
-          }
+      if (msg.msg == 'Here is your downloads') {
+        setDownloads(msg.data);
+        setDownloadsSize(Object.keys(msg.data).length);
+      } else if (msg.msg == 'Download update') {
+        const url = msg.data.url;
+
+        if (
+          (url in downloads && downloads[url].id != msg.data.id) ||
+          downloads[url].state != msg.data.state
+        ) {
+          downloads[url].id = msg.data.id;
+          downloads[url].state = msg.data.state;
+
+          const newDl = { ...downloads };
+          setDownloads(newDl);
         }
       }
     });
@@ -293,7 +306,7 @@ export default function Popup() {
           <TabPanel value={tabValue} index={0}>
             <DownloadHeader
               isChecked={isCheckedAll}
-              isDisabled={Object.keys(downloads).length > 0 ? false : true}
+              isDisabled={downloadsSize > 0 ? false : true}
               toggleCheckAll={toggleCheckAll}
               downloadThese={downloadThese}
               pauseThese={pauseThese}
@@ -306,7 +319,7 @@ export default function Popup() {
                 <Download
                   key={key}
                   {...downloads[key]}
-                  downloads={downloads}
+                  downloadsSize={downloadsSize}
                   toggleCheck={toggleCheck}
                   clearOne={clearOne}
                   stopOne={stopOne}

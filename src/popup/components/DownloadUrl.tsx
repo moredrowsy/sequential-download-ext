@@ -13,7 +13,12 @@ export default React.memo((props: DownloadUrlProps) => {
       {ellipseStr(props.url, maxLen, 'in')}
     </Typography>
   );
-});
+}, areEqual);
+
+// This component never needs to update
+function areEqual() {
+  return true;
+}
 
 interface DownloadUrlProps {
   url: string;

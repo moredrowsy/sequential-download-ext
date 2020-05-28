@@ -41,7 +41,7 @@ export default React.memo((props: DownloadProps) => {
             state={props.state}
             clearOne={props.clearOne}
             stopOne={props.stopOne}
-          />{' '}
+          />
         </Grid>
       </Grid>
     </Grid>
@@ -55,8 +55,7 @@ function areEqual(prevProps: DownloadProps, nextProps: DownloadProps) {
   // to rerender and grab props' new callbacks so that the callacks
   // will use the new downloads object and state setter.
   if (
-    Object.keys(prevProps.downloads).length ==
-      Object.keys(nextProps.downloads).length &&
+    prevProps.downloadsSize === nextProps.downloadsSize &&
     prevProps.isChecked === nextProps.isChecked &&
     prevProps.state === nextProps.state
   ) {
@@ -65,7 +64,7 @@ function areEqual(prevProps: DownloadProps, nextProps: DownloadProps) {
 }
 
 interface DownloadProps extends Download {
-  downloads: Downloads;
+  downloadsSize: number;
   toggleCheck: (e: React.ChangeEvent<HTMLInputElement>) => void;
   clearOne: (url: string) => void;
   stopOne: (url: string) => void;
