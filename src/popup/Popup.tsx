@@ -212,6 +212,11 @@ export default function Popup() {
     }
   };
 
+  const onKeyDownInput = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    // On 'Enter' key down, parse string in input
+    if (e.keyCode === 13) parse();
+  };
+
   // Save downloads to background.js
   const saveDownloadsToBackground = async (data: Downloads) => {
     const msg: PortMessage = {
@@ -323,6 +328,7 @@ export default function Popup() {
             fullWidth
             margin={'dense'}
             type='url'
+            onKeyDownCapture={onKeyDownInput}
           />
         </Grid>
         <Grid item>
