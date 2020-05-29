@@ -16,8 +16,8 @@ export default React.memo((props: DownloadProps) => {
       <Grid container className={classes.downloadRow} alignItems='center'>
         <Grid item>
           <DownloadCheckbox
-            isChecked={props.isChecked}
             url={props.url}
+            isChecked={props.isChecked}
             toggleCheck={props.toggleCheck}
           />
         </Grid>

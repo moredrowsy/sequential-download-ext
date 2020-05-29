@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AppBar,
   Box,
@@ -26,6 +26,7 @@ export default function Popup() {
   const [downloads, setDownloads] = useState<Downloads>({});
   const [downloadsSize, setDownloadsSize] = useState(0);
   const [isCheckedAll, setIsCheckedAll] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Switch tab panel
   const tabSwitch = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -190,18 +191,14 @@ export default function Popup() {
         data: [downloads[url]],
       };
       port.postMessage(msg);
-      console.log(downloads[url]);
     },
     [Object.keys(downloads).length]
   );
 
   // Parses url into sequences
   const parse = () => {
-    const urlInput: HTMLInputElement = document.getElementById(
-      'url-input'
-    ) as HTMLInputElement;
-    if (urlInput) {
-      const urls = urlParser(urlInput.value);
+    if (inputRef && inputRef.current) {
+      const urls = urlParser(inputRef.current.value);
       const dl: Downloads = {};
 
       for (let url of urls) {
@@ -339,13 +336,13 @@ export default function Popup() {
       <Grid container alignItems='center'>
         <Grid item xs={true}>
           <Input
-            id='url-input'
             placeholder='http://www.example.com/image_[001:050].jpg'
             className={classes.input}
             fullWidth
             margin={'dense'}
             type='url'
             onKeyDownCapture={onKeyDownInput}
+            inputRef={inputRef}
           />
         </Grid>
         <Grid item>

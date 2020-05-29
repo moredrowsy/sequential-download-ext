@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { IconButton } from '@material-ui/core';
 import { PauseCircleFilled, PlayCircleFilled } from '@material-ui/icons';
 
@@ -8,24 +8,24 @@ export default React.memo((props: DownloadPlayPauseProps) => {
   const classes = useStyles();
 
   // Pause download
-  const pauseOne = () => {
+  const pauseOne = useCallback(() => {
     const msg: PortMessage = {
       from: 'popup',
       msg: 'Pause these items',
       data: [{ url: props.url, id: props.id, state: props.state }],
     };
     props.port.postMessage(msg);
-  };
+  }, [props.state]);
 
   // Start download
-  const startOne = () => {
+  const startOne = useCallback(() => {
     const msg: PortMessage = {
       from: 'popup',
       msg: 'Download these items',
       data: [{ url: props.url, id: props.id, state: props.state }],
     };
     props.port.postMessage(msg);
-  };
+  }, [props.state]);
 
   switch (props.state) {
     case 'complete':
